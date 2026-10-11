@@ -98,6 +98,17 @@ render_drun_case() {
       *chicago95*|*hicolor*|*Adwaita*|*adwaita*)
         drun_data_dirs="$drun_data_dirs:$d"
         ;;
+      *)
+        # Keep font-only dirs so Pango still resolves the theme fonts
+        # (e.g. Terminus from nix-shell): fontconfig discovers Nix fonts
+        # via XDG_DATA_DIRS, and stripping them makes drun renders fall
+        # back to DejaVu Sans. Skip dirs shipping .desktop entries so the
+        # listing stays deterministic (fixtures only).
+        # shellcheck disable=SC2086
+        if [[ -d "$d/fonts" ]] && ! compgen -G "$d/applications/*.desktop" > /dev/null; then
+          drun_data_dirs="$drun_data_dirs:$d"
+        fi
+        ;;
     esac
   done
   unset IFS
