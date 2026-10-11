@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Terminal
+GenericName=Terminal Emulator
+Comment=Run commands in a window
+Exec=xterm
+Icon=utilities-terminal
+Categories=Utility;TerminalEmulator;

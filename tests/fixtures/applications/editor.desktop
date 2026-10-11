@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Editor
+GenericName=Text Editor
+Comment=Edit text files
+Exec=xedit
+Icon=accessories-text-editor
+Categories=Utility;TextEditor;

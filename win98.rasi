@@ -1,0 +1,837 @@
+configuration {
+    modi: "drun";
+    show-icons: true;
+    icon-theme: "Chicago95";
+    matching: "fuzzy";
+    display-drun: "Open:";
+    drun-match-fields: "name,generic,exec,comment,categories,keywords";
+    drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>] <span weight='light' size='small'>{comment}</span>";
+    application-fallback-icon: "application-default-icon";
+}
+
+* {
+    bg:              #c0c0c0;
+    light:           #ffffff;
+    midlight:        #dfdfdf;
+    shadow:          #808080;
+    dark:            #000000;
+
+    blue:            #000080;
+    blue-selected:   #000080;
+
+    foreground:      #000000;
+    selected-fg:     #ffffff;
+
+    background-color: transparent;
+    text-color:       @foreground;
+
+    font: "Terminus 12";
+}
+
+
+/* =========================================================
+ * WINDOW
+ *
+ * 4-tone bevels use nested 1px boxes (rofi has no multi-border).
+ * The repeated *-inner2 blocks per frame are inherent to that
+ * approach, not dedup-able — left as-is by decision.
+ * ========================================================= */
+
+window {
+    width: 680px;
+
+    location: center;
+    anchor: center;
+
+    background-color: @bg;
+
+    border: 1px;
+    border-color: @dark;
+
+    padding: 0px;
+
+    children: [ window-bevel-tl ];
+}
+
+
+window-bevel-tl {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @light;
+
+    padding: 0px;
+
+    children: [ window-bevel-tl2 ];
+}
+
+
+window-bevel-tl2 {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @midlight;
+
+    padding: 0px;
+
+    children: [ window-bevel-br ];
+}
+
+
+window-bevel-br {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @dark;
+
+    padding: 0px;
+
+    children: [ window-bevel-br2 ];
+}
+
+
+window-bevel-br2 {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @shadow;
+
+    padding: 3px;
+
+    children: [ mainbox ];
+}
+
+
+mainbox {
+    orientation: vertical;
+    spacing: 6px;
+
+    background-color: @bg;
+
+    children: [
+        titlebar,
+        search-frame,
+        list-frame,
+        actionbox
+    ];
+}
+
+
+/* =========================================================
+ * TITLE BAR
+ *
+ * Rofi names widgets by prefix: only textbox-* renders text
+ * (anything else is a box), and icon-* renders an icon.
+ * ========================================================= */
+
+titlebar {
+    orientation: horizontal;
+
+    expand: false;
+    height: 28px;
+
+    background-color: @blue;
+
+    padding: 3px 3px 3px 6px;
+    spacing: 7px;
+
+    children: [
+        textbox-title-icon,
+        textbox-title-text,
+        close-frame
+    ];
+}
+
+
+textbox-title-icon {
+    expand: false;
+
+    content: "▣";
+
+    width: 16px;
+
+    text-color: @selected-fg;
+    background-color: transparent;
+
+    vertical-align: 0.5;
+}
+
+
+textbox-title-text {
+    expand: true;
+
+    content: "Run Application";
+
+    text-color: @selected-fg;
+    background-color: transparent;
+
+    font: "Terminus Bold 12";
+
+    vertical-align: 0.5;
+}
+
+
+close-frame {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @light;
+
+    padding: 0px;
+
+    children: [ close-frame-inner2 ];
+}
+
+
+close-frame-inner2 {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @midlight;
+
+    padding: 0px;
+
+    children: [ close-inner ];
+}
+
+
+close-inner {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @dark;
+
+    padding: 0px;
+
+    children: [ textbox-close ];
+}
+
+
+textbox-close {
+    expand: false;
+
+    width: 25px;
+
+    content: "X";
+    action: "kb-cancel";
+
+    background-color: @bg;
+    text-color: @dark;
+
+    border: 0px 1px 1px 0px;
+    border-color: @shadow;
+
+    padding: 1px 5px;
+
+    font: "Terminus Bold 11";
+
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}
+
+
+/* =========================================================
+ * SEARCH BOX
+ * ========================================================= */
+
+search-frame {
+    orientation: vertical;
+
+    expand: false;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @shadow;
+
+    padding: 0px;
+
+    children: [ search-frame-inner2 ];
+}
+
+
+search-frame-inner2 {
+    orientation: vertical;
+
+    expand: false;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @dark;
+
+    padding: 0px;
+
+    children: [ search-inner ];
+}
+
+
+search-inner {
+    orientation: vertical;
+
+    expand: false;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @light;
+
+    padding: 0px;
+
+    children: [ search-inner2 ];
+}
+
+
+search-inner2 {
+    orientation: vertical;
+
+    expand: false;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @midlight;
+
+    padding: 2px;
+
+    children: [ inputbar ];
+}
+
+
+inputbar {
+    orientation: horizontal;
+
+    expand: false;
+    height: 38px;
+
+    background-color: @light;
+
+    spacing: 8px;
+    padding: 5px 8px;
+
+    children: [
+        prompt,
+        entry
+    ];
+}
+
+
+/*
+ * Prompt is the "Open:" label, like the Win98 Run dialog.
+ */
+prompt {
+    expand: false;
+
+    enabled: true;
+
+    text-color: @dark;
+    background-color: @light;
+
+    padding: 0px;
+
+    font: "Terminus 12";
+
+    vertical-align: 0.5;
+}
+
+
+entry {
+    expand: true;
+
+    background-color: @light;
+    text-color: @dark;
+
+    placeholder: "Type the name of a program...";
+    placeholder-color: @shadow;
+
+    cursor-color: @dark;
+
+    vertical-align: 0.5;
+}
+
+
+/* =========================================================
+ * LIST
+ * ========================================================= */
+
+list-frame {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @shadow;
+
+    padding: 0px;
+
+    children: [ list-frame-inner2 ];
+}
+
+
+list-frame-inner2 {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @dark;
+
+    padding: 0px;
+
+    children: [ list-inner ];
+}
+
+
+list-inner {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @light;
+
+    padding: 0px;
+
+    children: [ list-inner2 ];
+}
+
+
+list-inner2 {
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @midlight;
+
+    padding: 3px;
+
+    children: [ listbox ];
+}
+
+
+listbox {
+    orientation: horizontal;
+
+    background-color: @bg;
+
+    spacing: 0px;
+
+    children: [ listview, scrollcol ];
+}
+
+
+listview {
+    background-color: @bg;
+
+    columns: 1;
+    lines: 8;
+
+    fixed-height: true;
+    dynamic: true;
+
+    spacing: 0px;
+
+    scrollbar: false;
+}
+
+
+/* =========================================================
+ * SCROLLBAR ARROWS (visual-only)
+ *
+ * Native scrollbar is off; a narrow sibling column caps the
+ * list with raised-bevel arrow buttons over a flat trough.
+ * ========================================================= */
+
+scrollcol {
+    orientation: vertical;
+
+    expand: false;
+    width: 28px;
+
+    background-color: @bg;
+
+    spacing: 0px;
+
+    children: [
+        scroll-up-frame,
+        textbox-trough-a,
+        scroll-down-frame
+    ];
+}
+
+
+scroll-up-frame, scroll-down-frame {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @light;
+
+    padding: 0px;
+}
+
+
+scroll-up-frame {
+    children: [ scroll-up-frame-inner2 ];
+}
+
+
+scroll-down-frame {
+    children: [ scroll-down-frame-inner2 ];
+}
+
+
+scroll-up-frame-inner2, scroll-down-frame-inner2 {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @midlight;
+
+    padding: 0px;
+}
+
+
+scroll-up-frame-inner2 {
+    children: [ scroll-up-inner ];
+}
+
+
+scroll-down-frame-inner2 {
+    children: [ scroll-down-inner ];
+}
+
+
+scroll-up-inner, scroll-down-inner {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @dark;
+
+    padding: 0px;
+}
+
+
+scroll-up-inner {
+    children: [ textbox-scroll-up ];
+}
+
+
+scroll-down-inner {
+    children: [ textbox-scroll-down ];
+}
+
+
+textbox-scroll-up, textbox-scroll-down {
+    expand: false;
+
+    width: 25px;
+    height: 25px;
+
+    background-color: @bg;
+    text-color: @dark;
+
+    border: 0px 1px 1px 0px;
+    border-color: @shadow;
+
+    padding: 1px 5px;
+
+    font: "Terminus 11";
+
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}
+
+
+textbox-scroll-up {
+    content: "▲";
+}
+
+
+textbox-scroll-down {
+    content: "▼";
+}
+
+
+textbox-trough-a {
+    expand: true;
+
+    content: "";
+
+    width: 28px;
+
+    background-color: @midlight;
+}
+
+
+/* =========================================================
+ * APPLICATION ROWS
+ * ========================================================= */
+
+element {
+    orientation: horizontal;
+
+    height: 32px;
+
+    padding: 4px 8px;
+    spacing: 8px;
+
+    background-color: @bg;
+    text-color: @foreground;
+
+    children: [
+        element-icon,
+        element-text
+    ];
+}
+
+
+element normal.normal {
+    background-color: @bg;
+    text-color: @foreground;
+}
+
+
+element alternate.normal {
+    background-color: @bg;
+    text-color: @foreground;
+}
+
+
+element selected.normal {
+    background-color: @blue-selected;
+    text-color: @selected-fg;
+}
+
+
+element normal.active {
+    background-color: @bg;
+    text-color: @blue;
+}
+
+
+element selected.active {
+    background-color: @blue-selected;
+    text-color: @selected-fg;
+}
+
+
+element normal.urgent {
+    background-color: @bg;
+    text-color: #800000;
+}
+
+
+element selected.urgent {
+    background-color: @blue-selected;
+    text-color: @selected-fg;
+}
+
+
+element-icon {
+    expand: false;
+
+    size: 24px;
+
+    background-color: transparent;
+
+    vertical-align: 0.5;
+}
+
+
+element-text {
+    expand: true;
+
+    background-color: transparent;
+    text-color: inherit;
+
+    vertical-align: 0.5;
+
+    highlight: none;
+}
+
+
+/* =========================================================
+ * BUTTON ROW (OK / Cancel / Browse)
+ *
+ * Named actionbox, not buttonbox: buttonbox is reserved by
+ * rofi and silently drops custom children.
+ * ========================================================= */
+
+actionbox {
+    orientation: horizontal;
+
+    expand: false;
+
+    background-color: @bg;
+
+    spacing: 6px;
+
+    children: [
+        textbox-button-spacer,
+        ok-frame,
+        cancel-frame,
+        browse-frame
+    ];
+}
+
+
+textbox-button-spacer {
+    expand: true;
+
+    content: "";
+
+    background-color: transparent;
+}
+
+
+ok-frame, cancel-frame, browse-frame {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @light;
+
+    padding: 0px;
+}
+
+
+ok-frame {
+    children: [ ok-frame-inner2 ];
+}
+
+
+cancel-frame {
+    children: [ cancel-frame-inner2 ];
+}
+
+
+browse-frame {
+    children: [ browse-frame-inner2 ];
+}
+
+
+ok-frame-inner2, cancel-frame-inner2, browse-frame-inner2 {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 1px 0px 0px 1px;
+    border-color: @midlight;
+
+    padding: 0px;
+}
+
+
+ok-frame-inner2 {
+    children: [ ok-inner ];
+}
+
+
+cancel-frame-inner2 {
+    children: [ cancel-inner ];
+}
+
+
+browse-frame-inner2 {
+    children: [ browse-inner ];
+}
+
+
+ok-inner, cancel-inner, browse-inner {
+    expand: false;
+
+    orientation: vertical;
+
+    background-color: @bg;
+
+    border: 0px 1px 1px 0px;
+    border-color: @dark;
+
+    padding: 0px;
+}
+
+
+ok-inner {
+    children: [ textbox-ok ];
+}
+
+
+cancel-inner {
+    children: [ textbox-cancel ];
+}
+
+
+browse-inner {
+    children: [ textbox-browse ];
+}
+
+
+textbox-ok, textbox-cancel, textbox-browse {
+    expand: false;
+
+    background-color: @bg;
+    text-color: @dark;
+
+    border: 0px 1px 1px 0px;
+    border-color: @shadow;
+
+    padding: 4px 14px;
+
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}
+
+
+textbox-ok {
+    content: "OK";
+    action: "kb-accept";
+}
+
+
+textbox-cancel {
+    content: "Cancel";
+    action: "kb-cancel";
+}
+
+
+textbox-browse {
+    content: "Browse...";
+    /* Visual-only by decision: no action wired (OK=kb-accept, Cancel=kb-cancel). */
+}

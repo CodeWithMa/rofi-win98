@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Calculator
+GenericName=Calculator
+Comment=Perform arithmetic
+Exec=xcalc
+Icon=accessories-calculator
+Categories=Utility;Calculator;

@@ -1,0 +1,5 @@
+Terminal
+Firefox
+Files
+Calculator
+Editor

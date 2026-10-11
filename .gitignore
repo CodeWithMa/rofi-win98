@@ -1,0 +1,5 @@
+# Rendered screenshots from tests/render.sh
+out/
+
+# Local agent working directory (specs, tickets, scratch maps)
+.scratch/
