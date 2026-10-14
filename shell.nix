@@ -7,6 +7,8 @@ pkgs.mkShell {
     xorg-server
     openbox
     maim
+    sway
+    grim
     xdotool
     imagemagick
     terminus_font

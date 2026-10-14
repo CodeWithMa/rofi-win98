@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Render win98.rasi under a virtual X server and screenshot it.
+# Render win98.rasi under an isolated X11 or Wayland display and screenshot it.
 # Usage:
-#   nix-shell --run "tests/render.sh [--out DIR] [--theme FILE]"
-# Always re-exec under a dedicated xvfb-run display.
+#   nix-shell --run "tests/render.sh [--backend x11|wayland] [--out DIR] [--theme FILE]"
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 THEME="$REPO_ROOT/win98.rasi"
-OUT="$REPO_ROOT/out"
+OUT=""
+BACKEND=x11
 ENTRIES="$SCRIPT_DIR/entries.txt"
 FIXTURES="$SCRIPT_DIR/fixtures"
 RES="1280x800x24"
@@ -18,24 +18,29 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --out) OUT="$2"; shift 2 ;;
     --theme) THEME="$2"; shift 2 ;;
+    --backend) BACKEND="$2"; shift 2 ;;
     --under-xvfb) UNDER_XVFB=1; shift ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
+case "$BACKEND" in
+  x11) OUT="${OUT:-$REPO_ROOT/out}" ;;
+  wayland) OUT="${OUT:-$REPO_ROOT/out/wayland}" ;;
+  *) echo "unknown backend: $BACKEND (expected x11 or wayland)" >&2; exit 2 ;;
+esac
+
 # Use a fresh X display even when launched from an existing desktop session.
-if [[ -z "$UNDER_XVFB" ]]; then
+if [[ "$BACKEND" == x11 && -z "$UNDER_XVFB" ]]; then
   exec xvfb-run -a -s "-screen 0 $RES" env -u WAYLAND_DISPLAY "$0" --under-xvfb --out "$OUT" --theme "$THEME"
 fi
 
 mkdir -p "$OUT"
 
-echo "== lint theme =="
-rofi -no-config -theme "$THEME" -dump-theme > /dev/null
-echo "theme parses OK: $THEME"
-
 ROFI_PID=""
-STARTED_OPENBOX=""
+DISPLAY_PID=""
+RUNTIME_DIR=""
+ROFI_DISPLAY_ARGS=()
 # Each renderer uses an output-local pidfile so a desktop launcher can stay open.
 
 stop_rofi() {
@@ -48,25 +53,72 @@ stop_rofi() {
 
 cleanup() {
   stop_rofi
-  if [[ -n "$STARTED_OPENBOX" ]]; then
-    kill "$STARTED_OPENBOX" 2>/dev/null || true
-    wait "$STARTED_OPENBOX" 2>/dev/null || true
+  if [[ -n "$DISPLAY_PID" ]]; then
+    kill "$DISPLAY_PID" 2>/dev/null || true
+    wait "$DISPLAY_PID" 2>/dev/null || true
+  fi
+  if [[ -n "$RUNTIME_DIR" ]]; then
+    rm -rf "$RUNTIME_DIR"
   fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-# Centered location needs a WM on this test display.
-echo "== starting openbox =="
-openbox > "$OUT/openbox.log" 2>&1 &
-STARTED_OPENBOX=$!
-sleep 1
+if [[ "$BACKEND" == x11 ]]; then
+  # Centered location needs a WM on this test display.
+  echo "== starting openbox =="
+  openbox > "$OUT/openbox.log" 2>&1 &
+  DISPLAY_PID=$!
+  ROFI_DISPLAY_ARGS=(-normal-window)
+  sleep 1
+else
+  echo "== starting headless sway =="
+  RUNTIME_DIR=$(mktemp -d)
+  export XDG_RUNTIME_DIR="$RUNTIME_DIR"
+  unset DISPLAY WAYLAND_DISPLAY SWAYSOCK
+  WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_HEADLESS_OUTPUTS=1 \
+    WLR_LIBINPUT_NO_DEVICES=1 \
+    sway --unsupported-gpu -c "$SCRIPT_DIR/sway.conf" > "$OUT/sway.log" 2>&1 &
+  DISPLAY_PID=$!
+  # Wait for this compositor's socket, never the caller's Wayland session.
+  for ((attempt=0; attempt<100; attempt++)); do
+    for socket in "$RUNTIME_DIR"/wayland-*; do
+      if [[ -S "$socket" ]]; then
+        export WAYLAND_DISPLAY="${socket##*/}"
+        break 2
+      fi
+    done
+    if ! kill -0 "$DISPLAY_PID" 2>/dev/null; then
+      echo "sway exited early, log:" >&2
+      cat "$OUT/sway.log" >&2
+      exit 1
+    fi
+    sleep 0.1
+  done
+  if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+    echo "timed out waiting for sway, log:" >&2
+    cat "$OUT/sway.log" >&2
+    exit 1
+  fi
+fi
+
+echo "== lint theme ($BACKEND) =="
+rofi -no-config -theme "$THEME" -dump-theme > /dev/null
+echo "theme parses OK: $THEME"
+
+screenshot() {
+  if [[ "$BACKEND" == x11 ]]; then
+    maim -u "$1"
+  else
+    grim -o HEADLESS-1 "$1"
+  fi
+}
 
 wait_for_render() {
   # Rofi's window is not reliably found via xdotool (override-redirect /
   # unnamed in v2.0), so wait a fixed beat for map + font settle.
-  # Rendering is deterministic; 1.5s is plenty under Xvfb.
+  # Allow map + font settle on either backend before capturing the output.
   sleep 1.5
 }
 
@@ -77,7 +129,7 @@ render_case() {
   rofi -no-config -theme "$THEME" \
     -pid "$OUT/rofi.pid" \
     -dmenu -i -no-custom -sync -l 5 -p "Run" \
-    -show-icons false -normal-window \
+    -show-icons false "${ROFI_DISPLAY_ARGS[@]}" \
     -window-title "$title" "$@" < "$ENTRIES" > /dev/null 2> "$OUT/rofi-$name.log" &
   local pid=$!
   ROFI_PID="$pid"
@@ -87,7 +139,7 @@ render_case() {
     cat "$OUT/rofi-$name.log" >&2 || true
     return 1
   fi
-  maim -u "$OUT/$name.png"
+  screenshot "$OUT/$name.png"
   echo "wrote $OUT/$name.png"
   stop_rofi
   sleep 0.3
@@ -129,7 +181,7 @@ render_drun_case() {
     -show drun -modi drun -i -l 5 \
     -show-icons -disable-history -sort \
     -drun-categories Utility,Network \
-    -cache-dir "$OUT/cache-$name" -normal-window \
+    -cache-dir "$OUT/cache-$name" "${ROFI_DISPLAY_ARGS[@]}" \
     -window-title "$title" "$@" > /dev/null 2> "$OUT/rofi-$name.log" &
   local pid=$!
   ROFI_PID="$pid"
@@ -139,7 +191,7 @@ render_drun_case() {
     cat "$OUT/rofi-$name.log" >&2 || true
     return 1
   fi
-  maim -u "$OUT/$name.png"
+  screenshot "$OUT/$name.png"
   echo "wrote $OUT/$name.png"
   stop_rofi
   sleep 0.3

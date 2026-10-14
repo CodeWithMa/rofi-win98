@@ -13,7 +13,7 @@ replacement. Pure theme configuration — no forked binary, no patch, no build s
 - Dense result rows: name, generic name, and comment
 - Working OK / Cancel controls and a visual-only Browse control
 - Scrollbar arrows capping a narrow trough column (visual-only)
-- Pixel-level visual regression tests
+- Pixel-level visual regression tests on X11 and native Wayland
 
 ## Requirements
 
@@ -61,13 +61,26 @@ what you see above is exactly what the tests pin.
 
 ## Development
 
-The test suite renders the theme on a dedicated Xvfb display and diffs the result
-against the blessed references with normalized RMSE (threshold 0.01).
+The test suite renders the same four cases on isolated X11 and Wayland displays
+and diffs the results against the same blessed references with normalized RMSE
+(threshold 0.01). Both backends use a 1280×800 output at scale 1.
 Dependencies are pinned in `shell.nix`:
+
+X11 (Xvfb and Openbox):
 
 ```bash
 nix-shell --run "tests/render.sh && tests/compare.py"
 ```
+
+Native Wayland (headless Sway, software rendering, Xwayland disabled):
+
+```bash
+nix-shell --run "tests/render.sh --backend wayland && tests/compare.py --current out/wayland"
+```
+
+Both commands create their own display and clean up only their own processes,
+so they can run from an existing desktop session. Sway and Grim are included in
+`shell.nix` for Wayland testing.
 
 To run the comparator's unit tests:
 
@@ -75,11 +88,14 @@ To run the comparator's unit tests:
 nix-shell --run "python3 -B -m unittest discover -s tests"
 ```
 
-`tests/render.sh` writes screenshots to `out/`; `tests/compare.py` compares them
-to `tests/reference/` and writes a red-amplified diff on failure.
+`tests/render.sh` writes X11 screenshots to `out/` and Wayland screenshots to
+`out/wayland/`. Use `--out DIR` to choose another output directory.
+`tests/compare.py` compares screenshots to `tests/reference/` and writes a
+red-amplified diff on failure.
 
 To re-bless references after an intentional visual change, run
-`tests/render.sh` and copy the new PNGs over `tests/reference/`.
+`tests/render.sh` and copy the new PNGs over `tests/reference/`, then check both
+backends against the updated references.
 
 ## Known limitations
 
