@@ -21,6 +21,10 @@ configuration {
 
     foreground:      #000000;
     selected-fg:     #ffffff;
+    input-bg:        #ffffff;
+    placeholder-fg:  #808080;
+    active-fg:       #000080;
+    urgent-fg:       #800000;
 
     background-color: transparent;
     text-color:       @foreground;
@@ -236,7 +240,7 @@ button-close {
     action: "kb-cancel";
 
     background-color: @bg;
-    text-color: @dark;
+    text-color: @foreground;
 
     border: 0px 1px 1px 0px;
     border-color: @shadow;
@@ -324,7 +328,7 @@ inputbar {
     expand: false;
     height: 38px;
 
-    background-color: @light;
+    background-color: @input-bg;
 
     spacing: 8px;
     padding: 5px 8px;
@@ -344,8 +348,8 @@ prompt {
 
     enabled: true;
 
-    text-color: @dark;
-    background-color: @light;
+    text-color: @foreground;
+    background-color: @input-bg;
 
     padding: 0px;
 
@@ -358,13 +362,13 @@ prompt {
 entry {
     expand: true;
 
-    background-color: @light;
-    text-color: @dark;
+    background-color: @input-bg;
+    text-color: @foreground;
 
     placeholder: "Type the name of a program...";
-    placeholder-color: @shadow;
+    placeholder-color: @placeholder-fg;
 
-    cursor-color: @dark;
+    cursor-color: @foreground;
 
     vertical-align: 0.5;
 }
@@ -560,7 +564,7 @@ textbox-scroll-up, textbox-scroll-down {
     height: 25px;
 
     background-color: @bg;
-    text-color: @dark;
+    text-color: @foreground;
 
     border: 0px 1px 1px 0px;
     border-color: @shadow;
@@ -637,7 +641,7 @@ element selected.normal {
 
 element normal.active {
     background-color: @bg;
-    text-color: @blue;
+    text-color: @active-fg;
 }
 
 
@@ -649,7 +653,7 @@ element selected.active {
 
 element normal.urgent {
     background-color: @bg;
-    text-color: #800000;
+    text-color: @urgent-fg;
 }
 
 
@@ -807,7 +811,7 @@ button-ok, button-cancel, textbox-browse {
     expand: false;
 
     background-color: @bg;
-    text-color: @dark;
+    text-color: @foreground;
 
     border: 0px 1px 1px 0px;
     border-color: @shadow;

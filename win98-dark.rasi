@@ -1,0 +1,20 @@
+/* Keep this file beside win98.rasi: the layout and controls are shared. */
+@import "win98.rasi"
+
+* {
+    bg:              #303030;
+    light:           #707070;
+    midlight:        #484848;
+    shadow:          #202020;
+    dark:            #101010;
+
+    blue:            #163b70;
+    blue-selected:   #204a87;
+
+    foreground:      #e0e0e0;
+    selected-fg:     #ffffff;
+    input-bg:        #181818;
+    placeholder-fg:  #a0a0a0;
+    active-fg:       #8fbfff;
+    urgent-fg:       #ff8f8f;
+}
