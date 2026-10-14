@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=AAA Host Application
+GenericName=Isolation Sentinel
+Comment=This user-installed entry must not appear in test renders
+Exec=true
+Icon=utilities-terminal
+Categories=Utility;

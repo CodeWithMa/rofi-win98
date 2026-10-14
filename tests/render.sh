@@ -40,6 +40,7 @@ mkdir -p "$OUT"
 ROFI_PID=""
 DISPLAY_PID=""
 RUNTIME_DIR=""
+DRUN_DATA_HOME=""
 ROFI_DISPLAY_ARGS=()
 # Each renderer uses an output-local pidfile so a desktop launcher can stay open.
 
@@ -60,10 +61,17 @@ cleanup() {
   if [[ -n "$RUNTIME_DIR" ]]; then
     rm -rf "$RUNTIME_DIR"
   fi
+  if [[ -n "$DRUN_DATA_HOME" ]]; then
+    rm -rf "$DRUN_DATA_HOME"
+  fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+
+# A fresh data home excludes user applications and icon overrides. Theme fonts
+# remain available through the font-only XDG_DATA_DIRS retained below.
+DRUN_DATA_HOME=$(mktemp -d)
 
 if [[ "$BACKEND" == x11 ]]; then
   # Centered location needs a WM on this test display.
@@ -174,6 +182,7 @@ render_drun_case() {
     esac
   done
   unset IFS
+  XDG_DATA_HOME="$DRUN_DATA_HOME" \
   XDG_DATA_DIRS="$drun_data_dirs" \
   XDG_CACHE_HOME="$OUT/cache-$name" \
     rofi -no-config -theme "$THEME" \

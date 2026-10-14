@@ -82,6 +82,16 @@ Both commands create their own display and clean up only their own processes,
 so they can run from an existing desktop session. Sway and Grim are included in
 `shell.nix` for Wayland testing.
 
+The drun renders use a fresh `XDG_DATA_HOME` to exclude user-installed
+applications and icon overrides. Font-only directories in `XDG_DATA_DIRS` are
+preserved so Terminus supplied by `shell.nix` remains available.
+
+To verify isolation on both backends with an extra user-installed application:
+
+```bash
+nix-shell --run "tests/test-isolation.sh"
+```
+
 To run the comparator's unit tests:
 
 ```bash
