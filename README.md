@@ -64,7 +64,7 @@ what you see above is exactly what the tests pin.
 The test suite renders the same four cases on isolated X11 and Wayland displays
 and diffs the results against the same blessed references with normalized RMSE
 (threshold 0.01). Both backends use a 1280×800 output at scale 1.
-Dependencies are pinned in `shell.nix`:
+Development dependencies are provided by `shell.nix`:
 
 X11 (Xvfb and Openbox):
 
