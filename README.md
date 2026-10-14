@@ -11,7 +11,7 @@ replacement. Pure theme configuration — no forked binary, no patch, no build s
 - Title bar with title and working close control
 - Sunken white input field with an Open affordance
 - Dense result rows: name, generic name, and comment
-- OK / Cancel / Browse controls
+- Working OK / Cancel controls and a visual-only Browse control
 - Scrollbar arrows capping a narrow trough column (visual-only)
 - Pixel-level visual regression tests
 
@@ -35,12 +35,10 @@ mkdir -p ~/.config/rofi
 cp win98.rasi ~/.config/rofi/
 ```
 
-Then point rofi at it. Either set `theme:` in your `config.rasi`:
+Then point rofi at it. Either add an `@theme` directive to your `config.rasi`:
 
 ```
-* {
-    theme: "~/.config/rofi/win98.rasi";
-}
+@theme "~/.config/rofi/win98.rasi"
 ```
 
 or pass it per-invocation:
@@ -63,12 +61,18 @@ what you see above is exactly what the tests pin.
 
 ## Development
 
-The test suite renders the theme under Xvfb and diffs the result against the
-blessed references with normalized RMSE (threshold 0.01). Dependencies are
-pinned in `shell.nix`:
+The test suite renders the theme on a dedicated Xvfb display and diffs the result
+against the blessed references with normalized RMSE (threshold 0.01).
+Dependencies are pinned in `shell.nix`:
 
 ```bash
 nix-shell --run "tests/render.sh && tests/compare.py"
+```
+
+To run the comparator's unit tests:
+
+```bash
+nix-shell --run "python3 -B -m unittest discover -s tests"
 ```
 
 `tests/render.sh` writes screenshots to `out/`; `tests/compare.py` compares them
@@ -81,7 +85,9 @@ To re-bless references after an intentional visual change, run
 
 - Scrollbar arrows are **visual-only**: the wheel and arrow keys scroll the list,
   but clicking the arrows or dragging the trough does nothing.
-- Title bar, bevels, and controls are non-interactive decoration.
+- Browse is **visual-only** and does not open a file picker. OK accepts the
+  selection; Cancel and the title-bar close control dismiss the launcher.
+- The title-bar background and bevels are non-interactive decoration.
 
 ## License
 

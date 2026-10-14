@@ -128,8 +128,8 @@ mainbox {
 /* =========================================================
  * TITLE BAR
  *
- * Rofi names widgets by prefix: only textbox-* renders text
- * (anything else is a box), and icon-* renders an icon.
+ * Rofi names widgets by prefix: textbox-* renders read-only text,
+ * button-* renders clickable text, and icon-* renders an icon.
  * ========================================================= */
 
 titlebar {
@@ -223,11 +223,11 @@ close-inner {
 
     padding: 0px;
 
-    children: [ textbox-close ];
+    children: [ button-close ];
 }
 
 
-textbox-close {
+button-close {
     expand: false;
 
     width: 25px;
@@ -789,12 +789,12 @@ ok-inner, cancel-inner, browse-inner {
 
 
 ok-inner {
-    children: [ textbox-ok ];
+    children: [ button-ok ];
 }
 
 
 cancel-inner {
-    children: [ textbox-cancel ];
+    children: [ button-cancel ];
 }
 
 
@@ -803,7 +803,7 @@ browse-inner {
 }
 
 
-textbox-ok, textbox-cancel, textbox-browse {
+button-ok, button-cancel, textbox-browse {
     expand: false;
 
     background-color: @bg;
@@ -819,13 +819,13 @@ textbox-ok, textbox-cancel, textbox-browse {
 }
 
 
-textbox-ok {
+button-ok {
     content: "OK";
-    action: "kb-accept";
+    action: "kb-accept-entry";
 }
 
 
-textbox-cancel {
+button-cancel {
     content: "Cancel";
     action: "kb-cancel";
 }
@@ -833,5 +833,5 @@ textbox-cancel {
 
 textbox-browse {
     content: "Browse...";
-    /* Visual-only by decision: no action wired (OK=kb-accept, Cancel=kb-cancel). */
+    /* Visual-only by decision: no action wired (OK=kb-accept-entry, Cancel=kb-cancel). */
 }

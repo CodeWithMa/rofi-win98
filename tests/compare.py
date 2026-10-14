@@ -20,7 +20,7 @@ def rmse(a: Image.Image, b: Image.Image) -> float:
     diff = ImageChops.difference(a.convert("RGB"), b.convert("RGB"))
     stat = ImageStat.Stat(diff)
     # mean square across bands, then root, normalized to 0..1
-    mse = sum(v * v for v in stat.mean) / len(stat.mean)
+    mse = sum(v * v for v in stat.rms) / len(stat.rms)
     return math.sqrt(mse) / 255.0
 
 
