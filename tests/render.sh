@@ -11,7 +11,8 @@ OUT=""
 BACKEND=x11
 ENTRIES="$SCRIPT_DIR/entries.txt"
 FIXTURES="$SCRIPT_DIR/fixtures"
-RES="1280x800x24"
+# Match tests/sway.conf: a 16px desktop border around the 680x384 Run dialog.
+RES="712x416x24"
 UNDER_XVFB=""
 
 while [[ $# -gt 0 ]]; do

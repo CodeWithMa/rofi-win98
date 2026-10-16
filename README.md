@@ -3,7 +3,7 @@
 A Windows 98–style theme for [rofi](https://github.com/davatorium/rofi), the dmenu
 replacement. Pure theme configuration — no forked binary, no patch, no build step.
 
-![Win98 scrollbar arrows](tests/reference/drun.png)
+![Light mode Run dialog](tests/reference/drun.png)
 
 ## Features
 
@@ -70,13 +70,16 @@ layout and controls from `win98.rasi` and overrides only the palette.
 | Line input, moved selection | [`dmenu-selected.png`](tests/reference/dmenu-selected.png) | [`dmenu-selected.png`](tests/reference/dark/dmenu-selected.png) |
 
 These images are the blessed references for the visual test suite, so
-what you see above is exactly what the tests pin.
+what you see above is exactly what the tests pin. A compact virtual desktop
+leaves a small border around the dialog without cropping or scaling the images.
 
 ## Development
 
 The test suite renders four cases per theme on isolated X11 and Wayland displays
 and diffs the results against the same blessed references with normalized RMSE
-(threshold 0.01). Both backends use a 1280×800 output at scale 1.
+(threshold 0.01). Both backends use a 712×416 output at scale 1, leaving a
+16-pixel desktop border around the 680×384 Run dialog (the shorter line-input
+dialog has more vertical space).
 Development dependencies are provided by `shell.nix`:
 
 X11 (Xvfb and Openbox):
